@@ -5,6 +5,11 @@ const joiOptions = {
   abortEarly: false,
 };
 
+const sendValidationErr = (err, res) => {
+  const errors = err.details.map(detail => detail.message.replace(/"/g, ""));
+  sendResponse(res, 400, "Validation Error", errors);
+};
+
 /* --------------------------- SIGN IN VALIDATION --------------------------- */
 
 const validateSignin = (body, res) => {
@@ -14,10 +19,8 @@ const validateSignin = (body, res) => {
   }).options(joiOptions);
 
   const { value, error } = schema.validate(body);
-  if (!error) return value;
-
-  const errors = error.details.map(detail => detail.message.replace(/"/g, ""));
-  sendResponse(res, 400, "Validation Error", errors);
+  if (error) return sendValidationErr(error, res);
+  return value;
 };
 
 /* ---------------------------- SIGNUP VALIDATION --------------------------- */
@@ -32,10 +35,21 @@ const validateSignup = (body, res) => {
   }).options(joiOptions);
 
   const { value, error } = schema.validate(body);
-  if (!error) return value;
-
-  const errors = error.details.map(detail => detail.message.replace(/"/g, ""));
-  sendResponse(res, 400, "Validation Error", errors);
+  if (error) return sendValidationErr(error, res);
+  return value;
 };
 
-module.exports = { validateSignin, validateSignup };
+/* -------------------------- VALIDATE ADD BALANCE -------------------------- */
+
+const validateBalance = (body, res) => {
+  const schema = JOI.object({
+    amount: JOI.number().required(),
+    userId: JOI.number().required(),
+  });
+
+  const { value, error } = schema.validate(body);
+  if (error) return sendValidationErr(error, res);
+  return value;
+};
+
+module.exports = { validateSignin, validateSignup, validateBalance };

@@ -61,4 +61,19 @@ const userSignup = (newUser, callback) => {
   }
 };
 
-module.exports = { userLogin, userSignup };
+/* ---------------------------- ADD / UPDATE USER BALANCE ---------------------------- */
+
+const userBalance = (data, callback) => {
+  const query = `UPDATE users SET balance = ${data.amount} WHERE id = ${data.userId}`;
+
+  try {
+    dbConn.query(query, (err, result) => {
+      if (err) return callback({ status: false, data: { errorCode: errorCodes.DB_ERROR } });
+      callback({ status: true });
+    });
+  } catch (err) {
+    callback({ status: false, data: { errorCode: errorCodes.DB_ERROR } });
+  }
+};
+
+module.exports = { userLogin, userSignup, userBalance };
